@@ -1,0 +1,127 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(RODBC)
+
+med <- read.csv("medcyaspe_toxin_version2.csv")
+med
+
+```
+
+```{r}
+colnames(med)[1] <- "Species"
+med <- med[ , - c(5,6)]
+summary(med)
+
+```
+
+#Replace blank cells with NAs
+
+```{r}
+med
+med[med == ""] <- NA
+med
+med <- na.omit(med)
+med
+
+#Delete the last row
+med <- med[-nrow(med), ]
+med
+str(med)
+
+```
+
+```{r}
+med_5 <- med %>% 
+  select(Species, Country, Toxin) %>% 
+  filter(!is.na(Country)) %>% 
+  group_by(Species, Country)
+
+med_5
+```
+
+```{r}
+med_dist <- med %>%
+  select(Species, Country, Toxin) %>% 
+  filter(!is.na(Country)) %>% 
+  group_by(Species) %>% 
+  summarize(Species_distinct = n())
+med_dist
+```
+
+```{r}
+med_2 <- med %>% 
+  select(Country, Toxin) %>% 
+  group_by(Country) %>% 
+  tally()
+med_2 <- med_2[-(1), ]
+med_2
+```
+Number of each toxin
+```{r}
+med_3 <- med %>% 
+  select(Country, Toxin) %>% 
+  group_by(Toxin) %>%
+  summarise(N_toxin=n()) %>% 
+  arrange(desc(N_toxin))
+med_3 <- med_3[-(1), ]
+med_3
+
+```
+Barplot with the number of each toxin
+```{r}
+med_3$Toxin <- factor(med_3$Toxin, 
+                                levels=med_3$Toxin[order(med_3$count, decreasing = T)])
+
+library(ggplot2)
+ggplot(med_3, aes(reorder(Toxin, - count), count, fill= Toxin)) + geom_bar(stat = "identity") + theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    panel.grid.major = element_line(colour = NA), 
+    panel.grid.minor = element_line(size = 0.4), 
+    axis.title = element_text(size = 20, 
+        vjust = 1), axis.text = element_text(size = 12, 
+        hjust = 0, vjust = 0), axis.text.x = element_text(size = 15, 
+        colour = "black", vjust = 0, angle = 20), 
+    axis.text.y = element_text(size = 15, 
+        colour = "black"), plot.title = element_text(size = 17), 
+    panel.background = element_rect(fill = NA)) +labs(x = "Toxins") + theme(axis.text = element_text(hjust = 0.5), 
+    axis.text.x = element_text(vjust = 0.5)) + theme(axis.title = element_text(size = 18), 
+    axis.text = element_text(size = 10), 
+    axis.text.x = element_text(size = 11), 
+    axis.text.y = element_text(size = 11)) +labs(size = 12) + scale_y_continuous(limits=c(0,140))
+```
+
+
+```{r}
+
+toxins_per_country <- med %>% 
+  select(Species,Country,Toxin) %>% 
+  group_by(Country, Toxin) %>% 
+  summarize(N_toxins=n()) %>% 
+  arrange(Toxin)
+toxins_per_country
+toxins_per_country<- toxins_per_country[-(1), ]
+toxins_per_country
+```
+Grouped barplot type of toxins per Country
+```{r}
+ggplot(med_4, aes(x = Country, y = N_toxins, fill = Toxin)) + geom_bar(position = "dodge", stat = "identity") + geom_vline(xintercept = 1.5:10, color = "grey")
+```
+Stacked barplot 
+```{r}
+ggplot(toxins_per_country, aes(reorder(Country, -N_toxins), y = N_toxins, fill = Toxin)) +
+geom_bar(stat = "identity")
+```
+
+
+
+
+
+

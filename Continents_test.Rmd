@@ -1,0 +1,255 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  word_document: default
+---
+
+
+
+```{r}
+medcon <- read.csv("MED_Conts_Toxins_teliko_2.csv")
+medcon
+
+medcon <- medcon[-c(192,271,273, 431,836), ]
+medcon
+
+```
+
+```{r}
+summary(medcon)
+```
+
+## Find the unique Species in the Mediterranean basin
+
+```{r}
+medcon %>% 
+  filter(Continent == "Mediterranean") %>% 
+  group_by(Species) %>% 
+  distinct(Species)
+```
+
+
+```{r load_tidyverse}
+library(dplyr)
+library(ggplot2)
+```
+
+## Table with grouped Species and Cyanotoxins for each taxon
+
+```{r}
+species_cyanotox <- medcon %>%
+  filter(Continent == "Mediterranean")%>%
+  group_by(Species, Cyanotoxin) %>%
+  summarize(Number_of_records = n()) %>%
+  select(Species,  Cyanotoxin)
+species_cyanotox
+```
+
+##Οι κύριοι παραγωγοί τοξινών στη Μεσόγειο (συνολικά 9) + γράφημα
+
+```{r}
+main_toxin_producers_MED <- medcon %>%
+  filter(Continent == "Mediterranean")%>%
+  group_by(Species)%>%
+  summarize(Number_of_records = n())%>%
+  arrange(desc(Number_of_records))
+
+head(main_toxin_producers_MED, 9)
+library(ggplot2)
+
+ggplot(head(main_toxin_producers_MED,9), aes(x = reorder(Species, -Number_of_records), y = Number_of_records, fill = Species)) + geom_bar(stat = "identity") + 
+  theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.title = element_text(size = 14), 
+    axis.text.x = element_text(size = 12, 
+        vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
+    panel.background = element_rect(fill = NA), 
+    legend.background = element_rect(fill = NA, 
+        size = 0.1)) +
+  labs(x = "Species", size = 14) + 
+  theme(legend.position = "none") + 
+  coord_flip()  + 
+  theme(axis.text.x = element_text(angle = 0))+ 
+  geom_text(aes(label=Number_of_records), hjust=3, color="black", size=4) + 
+  theme(axis.title = element_text(size = 16), 
+    axis.text = element_text(size = 12), 
+    plot.title = element_text(size = 14), 
+    plot.background = element_rect(colour = NA)) +
+  labs(y = "Number of records") + 
+  theme(panel.grid.major = element_line(colour = NA), 
+    panel.grid.minor = element_line(colour = NA), 
+    panel.background = element_rect(linetype = "solid"), 
+    plot.background = element_rect(linetype = "solid"))
+ggsave("main_toxin_producers_MED.png", path = "ICTC11_medcyaspe/")
+  
+```
+
+```{r}
+install.packages("extrafont")
+library(extrafont)
+font_import()
+loadfonts(device="win")
+```
+
+## Number of cyanotoxins per species
+
+```{r}
+cyanotoxin_per_species <- medcon %>%
+  filter(Continent == "Mediterranean")%>%
+  select(Species, Country, Cyanotoxin)%>%
+  group_by(Species, Cyanotoxin)%>%
+  summarize(N_toxin = n())%>%
+  arrange(Species, Cyanotoxin)
+cyanotoxin_per_species
+
+```
+
+## Cyanotoxins per Species in the World except Mediterranean
+
+```{r}
+cyanotoxin_per_species <- medcon %>%
+  filter(Continent != "Mediterranean")%>%
+  select(Species, Country, Cyanotoxin)%>%
+  group_by(Species, Cyanotoxin)%>%
+  summarize(N_toxin = n())%>%
+  filter(N_toxin >1) %>% 
+  arrange(Species, Cyanotoxin)
+cyanotoxin_per_species
+```
+
+## Main toxin producers in the other Continents, not Mediterranean
+
+```{r}
+main_toxin_producers_globally <- medcon %>%
+  filter(Continent != "Mediterranean") %>% 
+  group_by(Species)%>%
+  summarize(Number_of_records = n())%>%
+  arrange(desc(Number_of_records))
+main_toxin_producers_globally
+
+ggplot(head(main_toxin_producers_globally,9), aes(x = reorder(Species, -Number_of_records), y = Number_of_records, fill = Species)) + geom_bar(stat = "identity") + 
+  theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.title = element_text(size = 14), 
+    axis.text.x = element_text(size = 12, 
+        vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
+    panel.background = element_rect(fill = NA), 
+    legend.background = element_rect(fill = NA, 
+        size = 0.1)) +
+  labs(x = "Species", size = 14) + 
+  theme(legend.position = "none") + 
+  coord_flip()  + 
+  theme(axis.text.x = element_text(angle = 0))+ 
+  geom_text(aes(label=Number_of_records), hjust=3, color="black", size=4) + 
+  theme(axis.title = element_text(size = 16), 
+    axis.text = element_text(size = 12), 
+    plot.title = element_text(size = 14), 
+    plot.background = element_rect(colour = NA)) +
+  labs(y = "Number of records") + 
+  theme(panel.grid.major = element_line(colour = NA), 
+    panel.grid.minor = element_line(colour = NA), 
+    panel.background = element_rect(linetype = "solid"), 
+    plot.background = element_rect(linetype = "solid"))
+  
+  
+  
+  geom_bar(stat = "identity") + theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.title = element_text(size = 14), 
+    axis.text.x = element_text(size = 12, 
+        vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
+    panel.background = element_rect(fill = NA), 
+    legend.background = element_rect(fill = NA, 
+        size = 0.1)) +labs(x = "Species", size = 14) + theme(legend.position = "none") + 
+  coord_flip()  + theme(axis.text.x = element_text(angle = 0))+ 
+  geom_text(aes(label=Number_of_records), hjust=3, color="black", size=3.5)
+  
+  
+```
+
+```{r}
+medcon %>% 
+  filter(Continent == "Mediterranean") %>% 
+  select(Species) %>% 
+  group_by(Species) %>% 
+  summarize(N = n()) %>% 
+  arrange(desc(N))
+```
+
+```{r}
+medcon6 <- medcon %>%
+  filter(Continent == "Mediterranean") %>%
+  select(Country, Cyanotoxin)%>%
+  group_by(Country)%>%
+  summarise(Number_of_records = n()) %>% 
+  arrange(desc(Number_of_records))
+medcon6
+```
+
+```{r}
+med_country_cyanotox <- medcon %>% 
+  filter(Continent == "Mediterranean")%>%
+  select(Species, Country,Cyanotoxin)%>%
+  group_by(Species, Cyanotoxin)%>%
+  arrange(Cyanotoxin)
+med_country_cyanotox
+
+```
+
+
+```{r}
+number_continents <- medcon %>% 
+  filter(Continent != "Mediterranean") %>% 
+  select(Species, Continent,Cyanotoxin) %>% 
+  group_by(Continent, Cyanotoxin) %>% 
+  summarise(Toxin = n()) 
+number_continents <- number_continents[-c(1,2), ]
+number_continents
+
+cont_stabar<- ggplot(number_continents, aes(x = Continent, y = Toxin, fill = Cyanotoxin)) + 
+  geom_bar(stat = "identity")+
+  geom_text(aes(label = Toxin), position = position_stack(vjust = 0.7)) + theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    panel.background = element_rect(fill = NA))
+cont_stabar
+
+ggsave("cont_stabar.png")
+```
+
+## Different types of cyanotoxins found for the main toxin producers in Mediterranean
+
+```{r}
+cyanotoxins_per_species <- medcon %>% 
+  filter(Continent == "Mediterranean") %>% 
+  select(Species, Cyanotoxin) %>% 
+  group_by(Species, Cyanotoxin) %>%
+  summarize(Number_of_records = n()) %>% 
+  arrange(desc(Number_of_records))
+cyanotoxins_per_species
+
+
+```
+
+## Number of different types of cyanotoxins found in the world
+
+```{r}
+cyanotoxins_continents <- medcon %>%
+  select(Cyanotoxin, Country) %>%
+  group_by(Cyanotoxin) %>% 
+  summarize(Number_of_records = n())
+cyanotoxins_continent <- cyanotoxins_continents[-1, ]
+
+ggplot(cyanotoxins_continent, aes(x=reorder(Cyanotoxin, - Number_of_records), Number_of_records, fill = Cyanotoxin)) + geom_bar(stat="identity", position = "dodge") + theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    panel.background = element_rect(fill = NA)) +labs(x = "Cyanotoxin", y = "Number of records") + 
+  coord_flip()
+```
+
+```{r}
+
+```
+
+
