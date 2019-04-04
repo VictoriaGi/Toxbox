@@ -25,10 +25,10 @@ library(stringr)
 
 ```
 
-```{r}
+```{r dpi=72, fig.width=4, fig.height=4}
 test <- medcon %>%
   select(Species, Cyanotoxin) %>%
-  filter(str_detect(Species, "Aphanocapsa")) %>% 
+  filter(str_detect(Species, "Microcystis")) %>% 
   mutate(yesno = 1) %>%
   distinct %>%
   spread(Species, yesno, fill = 0)
@@ -83,7 +83,11 @@ main_toxin_producers_MED <- medcon %>%
 head(main_toxin_producers_MED, 9)
 library(ggplot2)
 
-ggplot(head(main_toxin_producers_MED,9), aes(x = reorder(Species, -Number_of_records), y = Number_of_records, fill = Species)) + geom_bar(stat = "identity") + 
+main_toxin_producers_cont <- 
+  ggplot(head(main_toxin_producers_MED,9), 
+         aes(x = reorder(Species, -Number_of_records), 
+             y = Number_of_records, fill = Species)) + 
+  geom_bar(stat = "identity") + 
   theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
     axis.title = element_text(size = 14), 
@@ -105,12 +109,22 @@ ggplot(head(main_toxin_producers_MED,9), aes(x = reorder(Species, -Number_of_rec
   theme(panel.grid.major = element_line(colour = NA), 
     panel.grid.minor = element_line(colour = NA), 
     panel.background = element_rect(linetype = "solid"), 
-    plot.background = element_rect(linetype = "solid")) + theme(axis.ticks = element_line(colour = "black"), 
+    plot.background = element_rect(linetype = "solid")) + 
+  theme(axis.ticks = element_line(colour = "black"), 
     axis.text = element_text(size = 20, colour = "black"), 
     axis.text.x = element_text(size = 14, 
         colour = "black"), axis.text.y = element_text(size = 14, 
         colour = "black"))
-ggsave("main_toxin_producers_MED.png")
+
+main_toxin_producers_cont + theme(
+  panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA)
+        )
+
+ggsave("main_toxin_producers_MED.png", bg = "transparent")
   
 ```
 
@@ -150,7 +164,10 @@ main_toxin_producers_globally <- medcon %>%
   arrange(desc(Number_of_records))
 main_toxin_producers_globally
 
-ggplot(head(main_toxin_producers_globally,9), aes(x = reorder(Species, -Number_of_records), y = Number_of_records, fill = Species)) + geom_bar(stat = "identity") + 
+main_toxin_producers_cont <- ggplot(head(main_toxin_producers_globally,9), 
+                                  aes(x = reorder(Species, -Number_of_records), 
+                                      y = Number_of_records, fill = Species)) + 
+  geom_bar(stat = "identity") + 
   theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
     axis.title = element_text(size = 14), 
@@ -172,11 +189,21 @@ ggplot(head(main_toxin_producers_globally,9), aes(x = reorder(Species, -Number_o
   theme(panel.grid.major = element_line(colour = NA), 
     panel.grid.minor = element_line(colour = NA), 
     panel.background = element_rect(linetype = "solid"), 
-    plot.background = element_rect(linetype = "solid")) + theme(axis.text = element_text(size = 14, 
+    plot.background = element_rect(linetype = "solid")) + 
+  theme(axis.text = element_text(size = 14, 
     colour = "black"), axis.text.x = element_text(size = 14, 
     colour = "black"), axis.text.y = element_text(size = 14, 
     colour = "black"))
-ggsave("main_toxin_producers_cont.png")
+
+main_toxin_producers_cont + theme(
+  panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA)
+        )
+
+ggsave("main_toxin_producers_cont.png", bg = "transparent")
   
   
 ```
@@ -225,9 +252,17 @@ cont_stabar<- ggplot(number_continents, aes(x = Continent, y = Toxin, fill = Cya
   geom_text(aes(label = Toxin), position = position_stack(vjust = 0.7)) + theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
     panel.background = element_rect(fill = NA))
-cont_stabar
 
-ggsave("cont_stabar.png")
+# transparent background
+cont_stabar + theme(
+  panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA)
+        )
+
+ggsave("cont_stabar.png", bg = "transparent")
 ```
 
 ## Different types of cyanotoxins found for the main toxin producers in Mediterranean
@@ -253,14 +288,28 @@ cyanotoxins_continents <- medcon %>%
   summarize(Number_of_records = n())
 cyanotoxins_continent <- cyanotoxins_continents[-1, ]
 
-ggplot(cyanotoxins_continent, aes(x=reorder(Cyanotoxin, - Number_of_records), Number_of_records, fill = Cyanotoxin)) + geom_bar(stat="identity", position = "dodge") + theme(plot.subtitle = element_text(vjust = 1), 
+number_cyanotoxins_cont <- ggplot(cyanotoxins_continent, 
+                            aes(x=reorder(Cyanotoxin, - Number_of_records), 
+                                Number_of_records, fill = Cyanotoxin)) + 
+  geom_bar(stat="identity", position = "dodge") + 
+  theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
-    panel.background = element_rect(fill = NA)) +labs(x = "Cyanotoxin", y = "Number of records") + 
+    panel.background = element_rect(fill = NA)) +
+  labs(x = "Cyanotoxin", y = "Number of records") + 
   coord_flip() + theme(panel.grid.major = element_line(colour = NA), 
     axis.title = element_text(size = 16), 
     axis.text = element_text(size = 14), 
     legend.position = "none")
-ggsave("number_cyanotoxins_cont.png")
+
+number_cyanotoxins_cont + theme(
+  panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA)
+        )
+
+ggsave("number_cyanotoxins_cont.png", bg = "transparent", dpi = 300)
 ```
 
 ```{r}
