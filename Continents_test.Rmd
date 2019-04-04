@@ -19,6 +19,25 @@ medcon
 ```
 
 ```{r}
+library(tidyr)
+library(dplyr)
+library(stringr)
+
+```
+
+```{r}
+test <- medcon %>%
+  select(Species, Cyanotoxin) %>%
+  filter(str_detect(Species, "Aphanocapsa")) %>% 
+  mutate(yesno = 1) %>%
+  distinct %>%
+  spread(Species, yesno, fill = 0)
+
+heatmap(t(as.matrix(test[,-1])))
+```
+
+
+```{r}
 summary(medcon)
 ```
 
@@ -32,12 +51,7 @@ medcon %>%
 ```
 
 
-```{r load_tidyverse}
-library(dplyr)
-library(ggplot2)
-```
-
-## Table with grouped Species and Cyanotoxins for each taxon
+## Table with grouped Species and Cyanotoxins for each taxon in Mediterranean
 
 ```{r}
 species_cyanotox <- medcon %>%
@@ -46,6 +60,15 @@ species_cyanotox <- medcon %>%
   summarize(Number_of_records = n()) %>%
   select(Species,  Cyanotoxin)
 species_cyanotox
+```
+
+```{r}
+species_cyanotox_cont <- medcon %>%
+  filter(Continent != "Mediterranean")%>%
+  group_by(Species, Cyanotoxin) %>%
+  summarize(Number_of_records = n()) %>%
+  select(Species, Cyanotoxin )
+species_cyanotox_cont
 ```
 
 ##Οι κύριοι παραγωγοί τοξινών στη Μεσόγειο (συνολικά 9) + γράφημα
@@ -82,16 +105,13 @@ ggplot(head(main_toxin_producers_MED,9), aes(x = reorder(Species, -Number_of_rec
   theme(panel.grid.major = element_line(colour = NA), 
     panel.grid.minor = element_line(colour = NA), 
     panel.background = element_rect(linetype = "solid"), 
-    plot.background = element_rect(linetype = "solid"))
-ggsave("main_toxin_producers_MED.png", path = "ICTC11_medcyaspe/")
+    plot.background = element_rect(linetype = "solid")) + theme(axis.ticks = element_line(colour = "black"), 
+    axis.text = element_text(size = 20, colour = "black"), 
+    axis.text.x = element_text(size = 14, 
+        colour = "black"), axis.text.y = element_text(size = 14, 
+        colour = "black"))
+ggsave("main_toxin_producers_MED.png")
   
-```
-
-```{r}
-install.packages("extrafont")
-library(extrafont)
-font_import()
-loadfonts(device="win")
 ```
 
 ## Number of cyanotoxins per species
@@ -152,20 +172,11 @@ ggplot(head(main_toxin_producers_globally,9), aes(x = reorder(Species, -Number_o
   theme(panel.grid.major = element_line(colour = NA), 
     panel.grid.minor = element_line(colour = NA), 
     panel.background = element_rect(linetype = "solid"), 
-    plot.background = element_rect(linetype = "solid"))
-  
-  
-  
-  geom_bar(stat = "identity") + theme(plot.subtitle = element_text(vjust = 1), 
-    plot.caption = element_text(vjust = 1), 
-    axis.title = element_text(size = 14), 
-    axis.text.x = element_text(size = 12, 
-        vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
-    panel.background = element_rect(fill = NA), 
-    legend.background = element_rect(fill = NA, 
-        size = 0.1)) +labs(x = "Species", size = 14) + theme(legend.position = "none") + 
-  coord_flip()  + theme(axis.text.x = element_text(angle = 0))+ 
-  geom_text(aes(label=Number_of_records), hjust=3, color="black", size=3.5)
+    plot.background = element_rect(linetype = "solid")) + theme(axis.text = element_text(size = 14, 
+    colour = "black"), axis.text.x = element_text(size = 14, 
+    colour = "black"), axis.text.y = element_text(size = 14, 
+    colour = "black"))
+ggsave("main_toxin_producers_cont.png")
   
   
 ```
@@ -245,7 +256,11 @@ cyanotoxins_continent <- cyanotoxins_continents[-1, ]
 ggplot(cyanotoxins_continent, aes(x=reorder(Cyanotoxin, - Number_of_records), Number_of_records, fill = Cyanotoxin)) + geom_bar(stat="identity", position = "dodge") + theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
     panel.background = element_rect(fill = NA)) +labs(x = "Cyanotoxin", y = "Number of records") + 
-  coord_flip()
+  coord_flip() + theme(panel.grid.major = element_line(colour = NA), 
+    axis.title = element_text(size = 16), 
+    axis.text = element_text(size = 14), 
+    legend.position = "none")
+ggsave("number_cyanotoxins_cont.png")
 ```
 
 ```{r}
