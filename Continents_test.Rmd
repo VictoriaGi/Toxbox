@@ -9,7 +9,7 @@ output:
 
 
 
-```{r}
+```{r import_data}
 medcon <- read.csv("MED_Conts_Toxins_teliko_2.csv")
 medcon
 
@@ -18,24 +18,11 @@ medcon
 
 ```
 
-```{r}
+```{r load_basic_libraries}
 library(tidyr)
 library(dplyr)
 library(stringr)
-
 ```
-
-```{r dpi=72, fig.width=4, fig.height=4}
-test <- medcon %>%
-  select(Species, Cyanotoxin) %>%
-  filter(str_detect(Species, "Microcystis")) %>% 
-  mutate(yesno = 1) %>%
-  distinct %>%
-  spread(Species, yesno, fill = 0)
-
-heatmap(t(as.matrix(test[,-1])))
-```
-
 
 ```{r}
 summary(medcon)

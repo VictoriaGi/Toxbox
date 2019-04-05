@@ -1,0 +1,61 @@
+---
+title: "Exproratory methods"
+output: html_notebook
+---
+
+## Explore correlations between toxin producing cyanobacteria
+```{r heatmap.2}
+# Check the output in the folder!!!
+# You will find the image there
+
+library(gplots)
+library(viridis)
+
+species_explore <- medcon %>%
+  select(Species, Cyanotoxin) %>%
+  filter(str_detect(Species, "Anabaena")) %>% 
+  mutate(yesno = 1) %>%
+  distinct %>%
+  spread(Species, yesno, fill = 0)
+
+rownames(species_explore) <- c("Non Toxic", as.character(species_explore[2:nrow(species_explore),1]))
+
+png(filename = "dendro.png")
+ 
+heatmap.2(t(as.matrix(species_explore[,-1])), scale = "none",
+          trace = "none",
+          keysize = 1.5,
+          density.info = "none",
+          # srtCol = 45,
+          cexCol = 0.8,
+          offsetCol = -39.5,
+          margins = c(0.5,14),
+          dendrogram = "row",
+          lhei = c(1,5),
+          col = viridis,
+          )
+
+dev.off()
+
+```
+
+```{r}
+species_explore2 <- medcon %>%
+  select(Species, Cyanotoxin) %>%
+  filter(str_detect(Species, "Anabaena")) %>% 
+  count(Species, Cyanotoxin) %>% 
+  spread(Cyanotoxin, n)
+
+
+```
+
+
+```{r heatmaply}
+
+# Easier to plot but somewhat harder to perfect
+
+library(plotly)
+library(heatmaply)
+
+heatmaply(t(as.matrix(species_explore[,-1])))
+```
