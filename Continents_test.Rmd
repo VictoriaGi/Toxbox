@@ -63,17 +63,17 @@ species_cyanotox_cont
 ```{r}
 main_toxin_producers_MED <- medcon %>%
   filter(Continent == "Mediterranean")%>%
-  group_by(Species)%>%
+  group_by( Cyanotoxin, Species)%>%
   summarize(Number_of_records = n())%>%
   arrange(desc(Number_of_records))
 
 head(main_toxin_producers_MED, 9)
-library(ggplot2)
+
 
 main_toxin_producers_cont <- 
   ggplot(head(main_toxin_producers_MED,9), 
          aes(x = reorder(Species, -Number_of_records), 
-             y = Number_of_records, fill = Species)) + 
+             y = Number_of_records, fill = Cyanotoxin)) + 
   geom_bar(stat = "identity") + 
   theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
@@ -87,7 +87,6 @@ main_toxin_producers_cont <-
   theme(legend.position = "none") + 
   coord_flip()  + 
   theme(axis.text.x = element_text(angle = 0))+ 
-  geom_text(aes(label=Number_of_records), hjust=3, color="black", size=4) + 
   theme(axis.title = element_text(size = 16), 
     axis.text = element_text(size = 12), 
     plot.title = element_text(size = 14), 
@@ -144,16 +143,17 @@ cyanotoxin_per_species
 ## Main toxin producers in the other Continents, not Mediterranean
 
 ```{r}
+
 main_toxin_producers_globally <- medcon %>%
   filter(Continent != "Mediterranean") %>% 
-  group_by(Species)%>%
+  group_by(Cyanotoxin, Species)%>%
   summarize(Number_of_records = n())%>%
   arrange(desc(Number_of_records))
 main_toxin_producers_globally
 
 main_toxin_producers_cont <- ggplot(head(main_toxin_producers_globally,9), 
                                   aes(x = reorder(Species, -Number_of_records), 
-                                      y = Number_of_records, fill = Species)) + 
+                                      y = Number_of_records, fill = Cyanotoxin)) + 
   geom_bar(stat = "identity") + 
   theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
@@ -166,8 +166,7 @@ main_toxin_producers_cont <- ggplot(head(main_toxin_producers_globally,9),
   labs(x = "Species", size = 14) + 
   theme(legend.position = "none") + 
   coord_flip()  + 
-  theme(axis.text.x = element_text(angle = 0))+ 
-  geom_text(aes(label=Number_of_records), hjust=3, color="black", size=4) + 
+  theme(axis.text.x = element_text(angle = 0)) + 
   theme(axis.title = element_text(size = 16), 
     axis.text = element_text(size = 12), 
     plot.title = element_text(size = 14), 
@@ -189,8 +188,8 @@ main_toxin_producers_cont + theme(
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA)
         )
-
-ggsave("main_toxin_producers_cont.png", bg = "transparent")
+pdf("main_toxin_producers_cont", device = pdf)
+#ggsave("main_toxin_producers_cont.png", bg = "transparent")
   
   
 ```
@@ -296,7 +295,7 @@ number_cyanotoxins_cont + theme(
         legend.background = element_rect(fill = NA)
         )
 
-ggsave("number_cyanotoxins_cont.png", bg = "transparent", dpi = 300)
+# ggsave("number_cyanotoxins_cont.png", bg = "transparent", dpi = 300)
 ```
 
 ```{r}
