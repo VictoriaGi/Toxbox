@@ -3,6 +3,21 @@ title: "Exproratory methods"
 output: html_notebook
 ---
 
+```{r import_data}
+medcon <- read.csv("MED_Conts_Toxins_teliko_2.csv")
+medcon
+
+medcon <- medcon[-c(192,271,273, 431,836), ]
+medcon
+
+```
+
+```{r libraries}
+library(tidyverse)
+library(stringr)
+```
+
+
 ## Explore correlations between toxin producing cyanobacteria
 ```{r heatmap.2}
 # Check the output in the folder!!!
@@ -13,7 +28,7 @@ library(viridis)
 
 species_explore <- medcon %>%
   select(Species, Cyanotoxin) %>%
-  filter(str_detect(Species, "Anabaena")) %>% 
+  filter(str_detect(Species, "Microcystis")) %>% 
   mutate(yesno = 1) %>%
   distinct %>%
   spread(Species, yesno, fill = 0)
@@ -26,6 +41,7 @@ heatmap.2(t(as.matrix(species_explore[,-1])), scale = "none",
           trace = "none",
           keysize = 1.5,
           density.info = "none",
+          key.xlab = "abscense / presence",
           # srtCol = 45,
           cexCol = 0.8,
           offsetCol = -39.5,
@@ -36,13 +52,12 @@ heatmap.2(t(as.matrix(species_explore[,-1])), scale = "none",
           )
 
 dev.off()
-
 ```
 
 ```{r}
 species_explore2 <- medcon %>%
   select(Species, Cyanotoxin) %>%
-  filter(str_detect(Species, "Anabaena")) %>% 
+  filter(str_detect(Species, "Microcystis")) %>% 
   count(Species, Cyanotoxin) %>% 
   spread(Cyanotoxin, n)
 
@@ -50,7 +65,7 @@ species_explore2 <- medcon %>%
 ```
 
 
-```{r heatmaply}
+```{r heatmaply, cache=TRUE}
 
 # Easier to plot but somewhat harder to perfect
 
@@ -59,3 +74,70 @@ library(heatmaply)
 
 heatmaply(t(as.matrix(species_explore[,-1])))
 ```
+
+
+### Principal Component Analysis
+
+```{r pca_base_R, fig.width=10, dpi=300, cache=T}
+library(ggord)
+
+data <- as.data.frame(t(species_explore)[-1,])
+data2 <- (t(species_explore)[,-1])
+
+
+ord <- prcomp(t(as.matrix(species_explore[,-1])))
+data$`Non Toxic` <- as.numeric(data$`Non Toxic`)
+data$Anatoxin <- as.numeric(data$Anatoxin)
+data$Cylindrospermopsin <- as.numeric(data$Cylindrospermopsin)
+data$Microcystin <- as.numeric(data$Microcystin)
+data$Saxitoxin <- as.numeric(data$Saxitoxin)
+
+# transform(data, "Non Toxic" = as.numeric("Non Toxic"),
+#           "Anatoxin" = as.numeric("Anatoxin"))
+
+p <- ggord(data) +
+  geom_hline(yintercept=0,linetype=2) + 
+  geom_vline(xintercept=0,linetype=2)
+p
+```
+
+
+```{r pca, dpi=96, cache=T}
+library(ggord)
+library(factoextra)
+library(ade4)
+
+## In case there are missing data, replace with mean
+# X <- tab(t(as.matrix(species_explore[,-1])), freq = TRUE, NA.method = "mean") 
+
+pca.obj <- dudi.pca(t(as.matrix(species_explore[,-1])), scale = FALSE, scannf = FALSE, nf = 3)
+
+# fviz_eig(pca.obj, main = "Scree plot of PCA")
+```
+
+```{r pca_plots, fig.width=10, dpi=300, cache=T}
+ggord(pca.obj, 
+      # rownames(t(as.matrix(species_explore[,-1]))),
+      # arrow = NULL, txt = NULL, 
+      grp_title="Populations", ellipse=T, poly=FALSE, size=5, 
+      alpha=.2, coord_fix=F, axes = c("1", "2")) +
+  geom_hline(yintercept=0,linetype=2) + 
+  geom_vline(xintercept=0,linetype=2) +
+  ggtitle("Principal Component Analysis") +
+  scale_shape_manual('Groups', values = c(15, 17))
+
+# ggord(pca.obj, pop(obj), arrow = NULL, txt = NULL, grp_title="Populations", ellipse=T, poly=FALSE, size=2, alpha=.8, coord_fix=F, axes = c("1", "3")) +
+#   geom_hline(yintercept=0,linetype=2) + 
+#   geom_vline(xintercept=0,linetype=2) +
+#   ggtitle("Principal Component Analysis") +
+#   scale_shape_manual('Groups', values = c(15, 17))
+```
+
+```{r dpi=300, fig.width=10}
+fviz_pca_ind(ord, 
+             # pointsize = "cos2", 
+             pointshape = 21, fill = "#E7B800",
+             repel = TRUE # Avoid text overlapping (slow if many points)
+             )
+```
+
