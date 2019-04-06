@@ -236,10 +236,10 @@ combined <-
   theme(legend.position = "bottom", legend.direction = "horizontal") +
   coord_flip()  + 
   theme(axis.text.x = element_text(angle = 0)) + 
-  theme(axis.title = element_text(size = 16),
-        strip.text = element_text(size = 16), 
-    axis.text = element_text(size = 12), 
-    plot.title = element_text(size = 14), 
+  theme(axis.title = element_text(size = 20),
+        strip.text = element_text(size = 20), 
+    axis.text = element_text(size = 18), 
+    # plot.title = element_text(size = 14), 
     plot.background = element_rect(colour = NA)) +
   labs(y = "Number of records", colour = "white") + 
   theme(panel.grid.major = element_line(colour = NA), 
@@ -258,8 +258,8 @@ combined
 # Produce the plot with white text for the poster
 transparent_combined_plot <- combined +
   theme(axis.ticks = element_line(colour = "white"), 
-    axis.text = element_text(size = 20, colour = "white"), 
-    axis.text.x = element_text(size = 14, 
+    axis.text = element_text(colour = "white"), 
+    axis.text.x = element_text( 
         colour = "white"), axis.text.y = element_text(size = 14, 
         colour = "white")) + theme(axis.line = element_line(colour = "white"), 
     axis.ticks = element_line(colour = "white"), 
