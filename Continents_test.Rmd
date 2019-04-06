@@ -13,8 +13,15 @@ output:
 medcon <- read.csv("MED_Conts_Toxins_teliko_2.csv")
 medcon
 
+# Erase from the data.frame rows that contain broad categories of toxins (eg Hepatotoxin)
 medcon <- medcon[-c(192,271,273, 431,836), ]
+
+# Remove the unused levels from the Cyanotoxin factor
+medcon <- droplevels(medcon)
 medcon
+
+# Check the levels
+levels(medcon$Cyanotoxin)
 
 ```
 
@@ -71,7 +78,7 @@ main_toxin_producers_MED <- medcon %>%
 head(main_toxin_producers_MED, 9)
 
 
-main_toxin_producers_cont <- 
+main_toxin_producers_MED_plot <- 
   ggplot(head(main_toxin_producers_MED,9), 
          aes(x = reorder(Species, -Number_of_records), 
              y = Number_of_records, fill = Cyanotoxin)) + 
@@ -81,11 +88,12 @@ main_toxin_producers_cont <-
     axis.title = element_text(size = 14), 
     axis.text.x = element_text(size = 12, 
         vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
-    panel.background = element_rect(fill = NA), 
-    legend.background = element_rect(fill = NA, 
-        size = 0.1)) +
+    panel.background = element_rect(fill = NA),
+    # legend.background = element_rect(fill = NA, 
+        # size = 0.1)
+    ) +
   labs(x = "Species", size = 14, colour = "white") + 
-  theme(legend.position = "none") + 
+  # theme(legend.position = "none") +
   coord_flip()  + 
   theme(axis.text.x = element_text(angle = 0))+ 
   theme(axis.title = element_text(size = 16), 
@@ -96,22 +104,36 @@ main_toxin_producers_cont <-
   theme(panel.grid.major = element_line(colour = NA), 
     panel.grid.minor = element_line(colour = NA), 
     panel.background = element_rect(linetype = "solid"), 
-    plot.background = element_rect(linetype = "solid")) + 
+    plot.background = element_rect(linetype = "solid")) +
+  theme(axis.text.y = element_text(face = "italic")) +
+  # produce consistent colors across plots
+  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
+                               "Saxitoxin" = "#beaed4",
+                               "Cylindrospermopsin" = "#fdc086",
+                               "Microcystin" = "#ffff99"))
+ 
+
+main_toxin_producers_MED_plot
+  
+# Produce the plot with white text for the poster
+transparent_main_toxin_producers_MED_plot <- main_toxin_producers_MED_plot + 
   theme(axis.ticks = element_line(colour = "white"), 
     axis.text = element_text(size = 20, colour = "white"), 
     axis.text.x = element_text(size = 14, 
         colour = "white"), axis.text.y = element_text(size = 14, 
-        colour = "white"))
-
-main_toxin_producers_cont + theme(
-  panel.grid.major = element_blank(), 
+        colour = "white")) + theme(axis.line = element_line(colour = "white"), 
+    axis.ticks = element_line(colour = "white"), 
+    axis.title = element_text(colour = "white"), 
+    plot.title = element_text(colour = "white")) + 
+    theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_rect(fill = "transparent",colour = NA),
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA)
         )
 
-ggsave("main_toxin_producers_MED.pdf", bg = "transparent")
+# No need to save it. A new image featuring both plots will be produced below
+# ggsave("main_toxin_producers_MED.pdf", bg = "transparent")
   
 ```
 
@@ -125,9 +147,10 @@ main_toxin_producers_globally <- medcon %>%
   arrange(desc(Number_of_records))
 main_toxin_producers_globally
 
-main_toxin_producers_cont <- ggplot(head(main_toxin_producers_globally,9), 
-                                  aes(x = reorder(Species, -Number_of_records), 
-                                      y = Number_of_records, fill = Cyanotoxin)) + 
+main_toxin_producers_cont_plot <- 
+  ggplot(head(main_toxin_producers_globally,8), 
+        aes(x = reorder(Species, -Number_of_records), 
+        y = Number_of_records, fill = Cyanotoxin)) + 
   geom_bar(stat = "identity") + 
   theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
@@ -135,10 +158,11 @@ main_toxin_producers_cont <- ggplot(head(main_toxin_producers_globally,9),
     axis.text.x = element_text(size = 12, 
         vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
     panel.background = element_rect(fill = NA), 
-    legend.background = element_rect(fill = NA, 
-        size = 0.1)) +
+    # legend.background = element_rect(fill = NA, 
+    #     size = 0.1)
+    ) +
   labs(x = "Species", size = 14) + 
-  theme(legend.position = "none") + 
+  # theme(legend.position = "none") +
   coord_flip()  + 
   theme(axis.text.x = element_text(angle = 0)) + 
   theme(axis.title = element_text(size = 16), 
@@ -149,21 +173,125 @@ main_toxin_producers_cont <- ggplot(head(main_toxin_producers_globally,9),
   theme(panel.grid.major = element_line(colour = NA), 
     panel.grid.minor = element_line(colour = NA), 
     panel.background = element_rect(linetype = "solid"), 
-    plot.background = element_rect(linetype = "solid")) + 
-  theme(axis.text = element_text(size = 14, 
-    colour = "white"), axis.text.x = element_text(size = 14, 
-    colour = "white"), axis.text.y = element_text(size = 14, 
-    colour = "white"))
+    plot.background = element_rect(linetype = "solid")) +
+  theme(axis.text.y = element_text(face = "italic")) +
+  # produce consistent colors across plots
+  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
+                               "Saxitoxin" = "#beaed4",
+                               "Cylindrospermopsin" = "#fdc086",
+                               "Microcystin" = "#ffff99"))
 
-main_toxin_producers_cont + theme(
-  panel.grid.major = element_blank(), 
+main_toxin_producers_cont_plot  # check the plot
+  
+# Produce the plot with white text for the poster
+transparent_main_toxin_producers_cont_plot <- main_toxin_producers_cont_plot +
+  theme(axis.ticks = element_line(colour = "white"), 
+    axis.text = element_text(size = 20, colour = "white"), 
+    axis.text.x = element_text(size = 14, 
+        colour = "white"), axis.text.y = element_text(size = 14, 
+        colour = "white")) + theme(axis.line = element_line(colour = "white"), 
+    axis.ticks = element_line(colour = "white"), 
+    axis.title = element_text(colour = "white"), 
+    plot.title = element_text(colour = "white")) + 
+    theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_rect(fill = "transparent",colour = NA),
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA)
         )
-ggsave("main_toxin_producers_cont.pdf", bg = "transparent")
+
+# No need to save it. A new image featuring both plots will be produced below
+# ggsave("main_toxin_producers_cont.pdf", bg = "transparent")
 ```
+
+## Produce a single image for the two previous plots
+
+```{r combined, fig.width=10}
+med_subset <- head(main_toxin_producers_globally,8)
+med_subset$subset <- "Mediterranean"
+
+cont_subset <- head(main_toxin_producers_MED,9)
+cont_subset$subset <- "Other Continents"
+
+med_vs_cont <- rbind(med_subset, cont_subset)
+
+combined <- 
+  ggplot(med_vs_cont, 
+          aes(x = reorder(Species, -Number_of_records), 
+          y = Number_of_records, fill = Cyanotoxin)) + 
+  geom_bar(stat = "identity") + 
+  facet_wrap(~subset) +
+  theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.title = element_text(size = 14), 
+    axis.text.x = element_text(size = 12, 
+        vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
+    panel.background = element_rect(fill = NA), 
+    # legend.background = element_rect(fill = NA, 
+    #     size = 0.1)
+    ) +
+  labs(x = "Species", size = 14) + 
+  # theme(legend.position = "none") +
+  theme(legend.position = "bottom", legend.direction = "horizontal") +
+  coord_flip()  + 
+  theme(axis.text.x = element_text(angle = 0)) + 
+  theme(axis.title = element_text(size = 16), 
+    axis.text = element_text(size = 12), 
+    plot.title = element_text(size = 14), 
+    plot.background = element_rect(colour = NA)) +
+  labs(y = "Number of records", colour = "white") + 
+  theme(panel.grid.major = element_line(colour = NA), 
+    panel.grid.minor = element_line(colour = NA), 
+    panel.background = element_rect(linetype = "solid"), 
+    plot.background = element_rect(linetype = "solid")) +
+  theme(axis.text.y = element_text(face = "italic")) +
+  # produce consistent colors across plots
+  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
+                               "Saxitoxin" = "#beaed4",
+                               "Cylindrospermopsin" = "#fdc086",
+                               "Microcystin" = "#ffff99"))
+
+combined
+
+# Produce the plot with white text for the poster
+transparent_combined_plot <- combined +
+  theme(axis.ticks = element_line(colour = "white"), 
+    axis.text = element_text(size = 20, colour = "white"), 
+    axis.text.x = element_text(size = 14, 
+        colour = "white"), axis.text.y = element_text(size = 14, 
+        colour = "white")) + theme(axis.line = element_line(colour = "white"), 
+    axis.ticks = element_line(colour = "white"), 
+    axis.title = element_text(colour = "white"), 
+    plot.title = element_text(colour = "white")) + 
+    theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA),
+        legend.text = element_text(colour = "white"),
+        strip.background = element_blank(),
+        strip.text = element_text(color = "white")
+        )
+  
+ggsave("med_vs_cont.pdf", bg = "transparent")
+```
+
+
+```{r combined_plot, fig.asp=0.4, fig.width=10}
+# if (!requireNamespace("ggpubr"))
+#     install.packages("ggpubr")
+# library(ggpubr)
+# 
+# ggarrange(main_toxin_producers_MED_plot,
+#           main_toxin_producers_cont_plot,
+#           labels = c("A", "B"),
+#           common.legend = TRUE,
+#           legend = "bottom")
+# 
+# ggsave("test.pdf", bg = "transparent")
+
+```
+
 
 ## Number of cyanotoxins per species
 
@@ -228,22 +356,20 @@ cont_stabar<- ggplot(number_continents, aes(x = Continent, y = Toxin, fill = Cya
     plot.caption = element_text(vjust = 1), 
     panel.background = element_rect(fill = NA))
 
+# white text, transparent background
 cont_stabar + theme(axis.ticks = element_line(colour = "white"), 
     axis.title = element_text(size = 16, 
         colour = "white"), axis.text = element_text(size = 14, 
         colour = "white"), axis.text.x = element_text(size = 14), 
     legend.text = element_text(size = 12, 
         colour = "white"), legend.title = element_text(size = 14, 
-        colour = "white")) +labs(y = "Cyanotoxin")
-
-# transparent background
-cont_stabar + theme(
-  panel.grid.major = element_blank(), 
+        colour = "white"),
+    panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_rect(fill = "transparent",colour = NA),
         plot.background = element_rect(fill = "transparent",colour = NA),
-        legend.background = element_rect(fill = NA)
-        )
+        legend.background = element_rect(fill = NA)) +
+  labs(y = "Cyanotoxin")
 
 ggsave("cont_stabar.pdf", bg = "transparent")
 ```
