@@ -67,6 +67,7 @@ main_toxin_producers_MED <- medcon %>%
   group_by( Cyanotoxin, Species)%>%
   summarize(Number_of_records = n())%>%
   arrange(desc(Number_of_records))
+main_toxin_producers_MED
 
 head(main_toxin_producers_MED, 9)
 
@@ -248,6 +249,38 @@ cont_stabar + theme(
 ggsave("cont_stabar.pdf", bg = "transparent")
 ```
 
+```{r}
+number_cyanoto_med <- medcon %>% 
+  filter(Continent == "Mediterranean") %>% 
+  select(Species, Country,Cyanotoxin) %>% 
+  group_by(Country, Cyanotoxin) %>% 
+  summarise(Toxin= n()) 
+number_cyanoto_med <- number_cyanoto_med[-c(1,2), ]
+number_cyanoto_med
+
+x <- ggplot(number_cyanoto_med, aes(x=reorder(Country, - Toxin), Toxin, fill=Cyanotoxin )) + geom_bar(stat = "identity")
+x + theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.ticks = element_line(colour = "white"), 
+    panel.grid.minor = element_line(colour = NA), 
+    axis.title = element_text(size = 16, 
+        colour = "white"), axis.text = element_text(size = 14, 
+        colour = "white"), legend.text = element_text(size = 14, 
+        colour = "white"), legend.title = element_text(size = 16, 
+        colour = "white"), panel.background = element_rect(fill = NA), 
+    plot.background = element_rect(colour = NA), 
+    legend.key = element_rect(fill = NA), 
+    legend.background = element_rect(fill = NA)) +labs(x = "Country", y = "Cyanotoxin")
+x + theme(
+  panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA))
+
+ggsave("number_cyanoto_med.pdf", bg = "transparent")
+```
+
 ## Different types of cyanotoxins found for the main toxin producers in Mediterranean
 
 ```{r}
@@ -292,11 +325,10 @@ number_cyanotoxins_cont + theme(
         legend.background = element_rect(fill = NA)
         )
 
-# ggsave("number_cyanotoxins_cont.png", bg = "transparent", dpi = 300)
+number_cyanotoxins_cont
+
+# ggsave("number_cyanotoxins_cont.pdf", bg = "transparent", dpi = 300)
 ```
 
-```{r}
-
-```
 
 
