@@ -207,7 +207,7 @@ transparent_main_toxin_producers_cont_plot <- main_toxin_producers_cont_plot +
 
 ## Produce a single image for the two previous plots
 
-```{r combined, fig.asp= 0.5, fig.width=10}
+```{r combined, fig.asp= 0.5, fig.width=12}
 med_subset <- head(main_toxin_producers_globally,8) # create subsets
 med_subset$subset <- "Mediterranean"
 
@@ -236,7 +236,7 @@ combined <-
   theme(legend.position = "bottom", legend.direction = "horizontal") +
   coord_flip()  + 
   theme(axis.text.x = element_text(angle = 0)) + 
-  theme(axis.title = element_text(size = 20),
+  theme(axis.title = element_text(size = 22),
         strip.text = element_text(size = 20), 
     axis.text = element_text(size = 18), 
     # plot.title = element_text(size = 14), 
@@ -247,20 +247,26 @@ combined <-
     panel.background = element_rect(linetype = "solid"), 
     plot.background = element_rect(linetype = "solid")) +
   theme(axis.text.y = element_text(face = "italic")) +
+  theme(axis.title = element_text(family = "serif"), 
+    axis.text.y = element_text(family = "serif"), 
+    legend.text = element_text(size = 16, 
+        family = "serif"),
+    strip.text = element_text(family = "serif")) +
+  theme(legend.title = element_text(colour = NA)) +
   # produce consistent colors across plots
   scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
                                "Saxitoxin" = "#beaed4",
                                "Cylindrospermopsin" = "#fdc086",
                                "Microcystin" = "#ffff99"))
 
-combined
+combined 
 
 # Produce the plot with white text for the poster
 transparent_combined_plot <- combined +
   theme(axis.ticks = element_line(colour = "white"), 
     axis.text = element_text(colour = "white"), 
     axis.text.x = element_text( 
-        colour = "white"), axis.text.y = element_text(size = 14, 
+        colour = "white"), axis.text.y = element_text(size = 20, 
         colour = "white")) + theme(axis.line = element_line(colour = "white"), 
     axis.ticks = element_line(colour = "white"), 
     axis.title = element_text(colour = "white"), 
@@ -275,7 +281,7 @@ transparent_combined_plot <- combined +
         strip.text = element_text(color = "white")
         )
   
-ggsave("med_vs_cont.pdf", bg = "transparent")
+ggsave("med_vs_cont.png", bg = "transparent", dpi = 300)
 ```
 
 
@@ -371,7 +377,14 @@ cont_stabar + theme(axis.ticks = element_line(colour = "white"),
         panel.background = element_rect(fill = "transparent",colour = NA),
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA)) +
-  labs(y = "Cyanotoxin")
+  labs(y = "Cyanotoxin") + 
+  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
+                               "Saxitoxin" = "#beaed4",
+                               "Cylindrospermopsin" = "#fdc086",
+                               "Microcystin" = "#ffff99",
+                               "Nodularin" = "#CC6666"))
+cont_stabar
+
 
 ggsave("cont_stabar.pdf", bg = "transparent")
 ```
@@ -390,22 +403,51 @@ x + theme(plot.subtitle = element_text(vjust = 1),
     plot.caption = element_text(vjust = 1), 
     axis.ticks = element_line(colour = "white"), 
     panel.grid.minor = element_line(colour = NA), 
-    axis.title = element_text(size = 16, 
-        colour = "white"), axis.text = element_text(size = 14, 
-        colour = "white"), legend.text = element_text(size = 14, 
-        colour = "white"), legend.title = element_text(size = 16, 
+    axis.title = element_text(size = 20, 
+        colour = "white"), axis.text = element_text(size = 20, 
+        colour = "white"), legend.text = element_text(size = 20, 
+        colour = "white"), legend.title = element_text(size = 20, 
         colour = "white"), panel.background = element_rect(fill = NA), 
     plot.background = element_rect(colour = NA), 
     legend.key = element_rect(fill = NA), 
-    legend.background = element_rect(fill = NA)) +labs(x = "Country", y = "Cyanotoxin")
-x + theme(
+    legend.background = element_rect(fill = NA)) +labs(x = "Country", y = "Cyanotoxin")+
+#Background transparent
+
+ theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.line = element_line(colour = NA), 
+    axis.ticks = element_line(colour = "white"), 
+    panel.grid.major = element_line(colour = NA), 
+    panel.grid.minor = element_line(colour = NA), 
+    axis.title = element_text(family = "serif", 
+        size = 20, colour = "white"), axis.text = element_text(size = 18, 
+        colour = "white"), axis.text.x = element_text(family = "serif", 
+        colour = "white", vjust = 0.6, angle = 45), 
+    axis.text.y = element_text(colour = "white"), 
+    plot.title = element_text(size = 20), 
+    legend.text = element_text(size = 18, 
+        family = "serif", colour = "white"), 
+    legend.title = element_text(size = 18, 
+        family = "serif", colour = "white"), 
+    panel.background = element_rect(fill = NA), 
+    plot.background = element_rect(colour = NA), 
+    legend.key = element_rect(fill = NA), 
+    legend.background = element_rect(fill = NA), 
+    legend.position = c(0.9, 0.6)) +labs(x = "Country", y = "Number of records")+
+#manually insert colors
+ scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
+                               "Saxitoxin" = "#beaed4",
+                               "Cylindrospermopsin" = "#fdc086",
+                               "Microcystin" = "#ffff99",
+                               "Nodularin" = "#CC6666"))+ 
+  theme(
   panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_rect(fill = "transparent",colour = NA),
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA))
 
-ggsave("number_cyanoto_med.pdf", bg = "transparent")
+ggsave("number_cyanoto_med.png", bg = "transparent", dpi=300)
 ```
 
 ## Different types of cyanotoxins found for the main toxin producers in Mediterranean
@@ -451,6 +493,11 @@ number_cyanotoxins_cont + theme(
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA)
         )
+number_cyanotoxins_cont + scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
+                               "Saxitoxin" = "#beaed4",
+                               "Cylindrospermopsin" = "#fdc086",
+                               "Microcystin" = "#ffff99",
+                               "Nodularin" = "#CC6666"))
 
 number_cyanotoxins_cont
 
