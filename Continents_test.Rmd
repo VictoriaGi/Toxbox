@@ -22,6 +22,7 @@ medcon
 library(tidyr)
 library(dplyr)
 library(stringr)
+library(ggplot2)
 ```
 
 ```{r}
@@ -83,7 +84,7 @@ main_toxin_producers_cont <-
     panel.background = element_rect(fill = NA), 
     legend.background = element_rect(fill = NA, 
         size = 0.1)) +
-  labs(x = "Species", size = 14) + 
+  labs(x = "Species", size = 14, colour = "white") + 
   theme(legend.position = "none") + 
   coord_flip()  + 
   theme(axis.text.x = element_text(angle = 0))+ 
@@ -96,11 +97,11 @@ main_toxin_producers_cont <-
     panel.grid.minor = element_line(colour = NA), 
     panel.background = element_rect(linetype = "solid"), 
     plot.background = element_rect(linetype = "solid")) + 
-  theme(axis.ticks = element_line(colour = "black"), 
-    axis.text = element_text(size = 20, colour = "black"), 
+  theme(axis.ticks = element_line(colour = "white"), 
+    axis.text = element_text(size = 20, colour = "white"), 
     axis.text.x = element_text(size = 14, 
-        colour = "black"), axis.text.y = element_text(size = 14, 
-        colour = "black"))
+        colour = "white"), axis.text.y = element_text(size = 14, 
+        colour = "white"))
 
 main_toxin_producers_cont + theme(
   panel.grid.major = element_blank(), 
@@ -110,8 +111,58 @@ main_toxin_producers_cont + theme(
         legend.background = element_rect(fill = NA)
         )
 
-ggsave("main_toxin_producers_MED.png", bg = "transparent")
+ggsave("main_toxin_producers_MED.pdf", bg = "transparent")
   
+```
+
+## Main toxin producers in the other Continents, not Mediterranean
+
+```{r}
+main_toxin_producers_globally <- medcon %>%
+  filter(Continent != "Mediterranean") %>% 
+  group_by(Cyanotoxin, Species)%>%
+  summarize(Number_of_records = n())%>%
+  arrange(desc(Number_of_records))
+main_toxin_producers_globally
+
+main_toxin_producers_cont <- ggplot(head(main_toxin_producers_globally,9), 
+                                  aes(x = reorder(Species, -Number_of_records), 
+                                      y = Number_of_records, fill = Cyanotoxin)) + 
+  geom_bar(stat = "identity") + 
+  theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.title = element_text(size = 14), 
+    axis.text.x = element_text(size = 12, 
+        vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
+    panel.background = element_rect(fill = NA), 
+    legend.background = element_rect(fill = NA, 
+        size = 0.1)) +
+  labs(x = "Species", size = 14) + 
+  theme(legend.position = "none") + 
+  coord_flip()  + 
+  theme(axis.text.x = element_text(angle = 0)) + 
+  theme(axis.title = element_text(size = 16), 
+    axis.text = element_text(size = 12), 
+    plot.title = element_text(size = 14), 
+    plot.background = element_rect(colour = NA)) +
+  labs(y = "Number of records", colour = "white") + 
+  theme(panel.grid.major = element_line(colour = NA), 
+    panel.grid.minor = element_line(colour = NA), 
+    panel.background = element_rect(linetype = "solid"), 
+    plot.background = element_rect(linetype = "solid")) + 
+  theme(axis.text = element_text(size = 14, 
+    colour = "white"), axis.text.x = element_text(size = 14, 
+    colour = "white"), axis.text.y = element_text(size = 14, 
+    colour = "white"))
+
+main_toxin_producers_cont + theme(
+  panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA)
+        )
+ggsave("main_toxin_producers_cont.pdf", bg = "transparent")
 ```
 
 ## Number of cyanotoxins per species
@@ -140,59 +191,6 @@ cyanotoxin_per_species <- medcon %>%
 cyanotoxin_per_species
 ```
 
-## Main toxin producers in the other Continents, not Mediterranean
-
-```{r}
-
-main_toxin_producers_globally <- medcon %>%
-  filter(Continent != "Mediterranean") %>% 
-  group_by(Cyanotoxin, Species)%>%
-  summarize(Number_of_records = n())%>%
-  arrange(desc(Number_of_records))
-main_toxin_producers_globally
-
-main_toxin_producers_cont <- ggplot(head(main_toxin_producers_globally,9), 
-                                  aes(x = reorder(Species, -Number_of_records), 
-                                      y = Number_of_records, fill = Cyanotoxin)) + 
-  geom_bar(stat = "identity") + 
-  theme(plot.subtitle = element_text(vjust = 1), 
-    plot.caption = element_text(vjust = 1), 
-    axis.title = element_text(size = 14), 
-    axis.text.x = element_text(size = 12, 
-        vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
-    panel.background = element_rect(fill = NA), 
-    legend.background = element_rect(fill = NA, 
-        size = 0.1)) +
-  labs(x = "Species", size = 14) + 
-  theme(legend.position = "none") + 
-  coord_flip()  + 
-  theme(axis.text.x = element_text(angle = 0)) + 
-  theme(axis.title = element_text(size = 16), 
-    axis.text = element_text(size = 12), 
-    plot.title = element_text(size = 14), 
-    plot.background = element_rect(colour = NA)) +
-  labs(y = "Number of records") + 
-  theme(panel.grid.major = element_line(colour = NA), 
-    panel.grid.minor = element_line(colour = NA), 
-    panel.background = element_rect(linetype = "solid"), 
-    plot.background = element_rect(linetype = "solid")) + 
-  theme(axis.text = element_text(size = 14, 
-    colour = "black"), axis.text.x = element_text(size = 14, 
-    colour = "black"), axis.text.y = element_text(size = 14, 
-    colour = "black"))
-
-main_toxin_producers_cont + theme(
-  panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill = "transparent",colour = NA),
-        plot.background = element_rect(fill = "transparent",colour = NA),
-        legend.background = element_rect(fill = NA)
-        )
-pdf("main_toxin_producers_cont", device = pdf)
-#ggsave("main_toxin_producers_cont.png", bg = "transparent")
-  
-  
-```
 
 ```{r}
 medcon %>% 
@@ -203,15 +201,6 @@ medcon %>%
   arrange(desc(N))
 ```
 
-```{r}
-medcon6 <- medcon %>%
-  filter(Continent == "Mediterranean") %>%
-  select(Country, Cyanotoxin)%>%
-  group_by(Country)%>%
-  summarise(Number_of_records = n()) %>% 
-  arrange(desc(Number_of_records))
-medcon6
-```
 
 ```{r}
 med_country_cyanotox <- medcon %>% 
@@ -235,9 +224,17 @@ number_continents
 
 cont_stabar<- ggplot(number_continents, aes(x = Continent, y = Toxin, fill = Cyanotoxin)) + 
   geom_bar(stat = "identity")+
-  geom_text(aes(label = Toxin), position = position_stack(vjust = 0.7)) + theme(plot.subtitle = element_text(vjust = 1), 
+   theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
     panel.background = element_rect(fill = NA))
+
+cont_stabar + theme(axis.ticks = element_line(colour = "white"), 
+    axis.title = element_text(size = 16, 
+        colour = "white"), axis.text = element_text(size = 14, 
+        colour = "white"), axis.text.x = element_text(size = 14), 
+    legend.text = element_text(size = 12, 
+        colour = "white"), legend.title = element_text(size = 14, 
+        colour = "white")) +labs(y = "Cyanotoxin")
 
 # transparent background
 cont_stabar + theme(
@@ -248,7 +245,7 @@ cont_stabar + theme(
         legend.background = element_rect(fill = NA)
         )
 
-ggsave("cont_stabar.png", bg = "transparent")
+ggsave("cont_stabar.pdf", bg = "transparent")
 ```
 
 ## Different types of cyanotoxins found for the main toxin producers in Mediterranean
