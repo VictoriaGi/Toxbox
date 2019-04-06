@@ -208,7 +208,7 @@ transparent_main_toxin_producers_cont_plot <- main_toxin_producers_cont_plot +
 ## Produce a single image for the two previous plots
 
 ```{r combined, fig.asp= 0.5, fig.width=10}
-med_subset <- head(main_toxin_producers_globally,8)
+med_subset <- head(main_toxin_producers_globally,8) # create subsets
 med_subset$subset <- "Mediterranean"
 
 cont_subset <- head(main_toxin_producers_MED,9)
