@@ -4,13 +4,26 @@ output: html_notebook
 ---
 
 ```{r import_data}
-medcon <- read.csv("MED_Conts_Toxins_teliko_2.csv")
+medcon <- read.csv("MED_Conts_Toxins_teliko_2.csv", na.strings = "")
 medcon
 
 medcon <- medcon[-c(192,271,273, 431,836), ]
 medcon
 
 ```
+
+## Rename rows that should have had the same name
+```{r clean}
+medcon2 <- medcon
+medcon2$Species <- sub("^Anabaena$", "Anabaena sp", medcon2$Species)
+```
+
+## Remove rows that are NA in column Cyanotoxin
+```{r}
+medcon_toxic <- medcon %>% 
+  drop_na(Cyanotoxin)
+```
+
 
 ```{r libraries}
 library(tidyverse)
