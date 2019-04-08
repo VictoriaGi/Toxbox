@@ -411,7 +411,7 @@ x + theme(plot.subtitle = element_text(vjust = 1),
     plot.background = element_rect(colour = NA), 
     legend.key = element_rect(fill = NA), 
     legend.background = element_rect(fill = NA)) +labs(x = "Country", y = "Cyanotoxin")+
-#Background transparent
+
 
  theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
@@ -440,12 +440,16 @@ x + theme(plot.subtitle = element_text(vjust = 1),
                                "Cylindrospermopsin" = "#fdc086",
                                "Microcystin" = "#ffff99",
                                "Nodularin" = "#CC6666"))+ 
+  #Background transparent
   theme(
   panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_rect(fill = "transparent",colour = NA),
         plot.background = element_rect(fill = "transparent",colour = NA),
-        legend.background = element_rect(fill = NA))
+        legend.background = element_rect(fill = NA))+
+ theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    legend.position = c(0.8, 0.7))
 
 ggsave("number_cyanoto_med.png", bg = "transparent", dpi=300)
 ```
@@ -502,6 +506,18 @@ number_cyanotoxins_cont + scale_fill_manual(values = c("Anatoxin" = "#7fc97f",
 number_cyanotoxins_cont
 
 # ggsave("number_cyanotoxins_cont.pdf", bg = "transparent", dpi = 300)
+```
+## Heatmap test
+```{r}
+medcon <- medcon[, -c(6:8)]
+medcon
+
+medcon <- as.matrix(medcon)
+head(medcon)
+
+my_group <- as.numeric(substr(rownames(medcon), 1, 1))
+
+heatmap(medcon, scale = "column")
 ```
 
 
