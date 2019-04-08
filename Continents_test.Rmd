@@ -14,7 +14,7 @@ medcon <- read.csv("MED_Conts_Toxins_teliko_2.csv")
 medcon
 
 # Erase from the data.frame rows that contain broad categories of toxins (eg Hepatotoxin)
-medcon <- medcon[-c(192,271,273, 431,836), ]
+medcon_droplevels <- medcon[-c(192,271,273, 431,836), ]
 
 # Remove the unused levels from the Cyanotoxin factor
 medcon <- droplevels(medcon)
@@ -475,7 +475,7 @@ cyanotoxins_continents <- medcon %>%
   select(Cyanotoxin, Country) %>%
   group_by(Cyanotoxin) %>% 
   summarize(Number_of_records = n())
-#cyanotoxins_continent <- cyanotoxins_continents[-1, ]
+cyanotoxins_continent <- cyanotoxins_continents[-1, ]
 
 #Ordered bars Re-level
 cyanotoxins_continents$Cyanotoxin <- factor(cyanotoxins_continents$Cyanotoxin, levels = cyanotoxins_continents$Cyanotoxin[order(cyanotoxins_continents$Number_of_records)])
@@ -492,8 +492,8 @@ number_cyanotoxins_cont <- ggplot(cyanotoxins_continents,
   coord_flip() + 
   
   theme(panel.grid.major = element_line(colour = NA), 
-    axis.title = element_text(size = 16), 
-    axis.text = element_text(size = 14), 
+    axis.title = element_text(size = 20), 
+    axis.text = element_text(size = 20), 
     legend.position = "none")+
   theme(
   panel.grid.major = element_blank(), 
@@ -512,20 +512,33 @@ number_cyanotoxins_cont <- ggplot(cyanotoxins_continents,
 
 number_cyanotoxins_cont
 
-# ggsave("number_cyanotoxins_cont.pdf", bg = "transparent", dpi = 300)
+ggsave("number_cyanotoxins_cont.png", bg = "transparent", dpi = 300)
 ```
-## Heatmap test
+
+
 ```{r}
-medcon <- medcon[, -c(6:8)]
-medcon
-
-medcon <- as.matrix(medcon)
-head(medcon)
-
-my_group <- as.numeric(substr(rownames(medcon), 1, 1))
-
-heatmap(medcon, scale = "column")
+medcon %>% 
+  select(Cyanotoxin, Country) %>% 
+  group_by(Cyanotoxin) %>% 
+  summarize(N_records = n()) %>% 
+  ggplot(aes(x= Cyanotoxin, y = N_records, fill = Cyanotoxin)) + geom_bar(width = 0.85, stat = "identity") + coord_polar(theta = "y") + xlab("") + ylab("") + ylim(c(0,100)) + geom_text(hjust = 1, size = 3, aes(x = Cyanotoxin, y = 0, label = Cyanotoxin)) + 
+  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
+                               "Saxitoxin" = "#beaed4",
+                               "Cylindrospermopsin" = "#fdc086",
+                               "Microcystin" = "#ffff99",
+                               "Nodularin" = "#CC6666",
+                               "Nothing" = "#990000")) +
+  theme_minimal() + theme( legend.position = "none",
+  panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA)
+        )
 ```
 
 
+```{r}
+
+```
 
