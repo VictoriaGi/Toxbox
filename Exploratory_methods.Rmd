@@ -12,11 +12,34 @@ medcon
 
 ```
 
+## Case when
+```{r}
+library(tidyverse)
+
+# medcon3 <- medcon
+
+medcon3 <- medcon %>% 
+  mutate(Species2 = case_when(str_detect(Species, "^Anabaena$") ~ "Anabaena sp"))
+```
+
+## AYTO DOULEYEI
+## str_replace_all
+```{r}
+library(tidyverse)
+
+medcon %>% 
+  mutate(Species = str_replace_all(Species, "^Anabaena$", "Anabaena sp")) %>% 
+  mutate(Species = str_replace_all(Species, "^Anabaena spp$", "Anabaena sp")) %>% 
+  mutate(Species = str_replace_all(Species, "^Microcystis$", "Microcystis sp")) %>% 
+  mutate(Species = str_replace_all(Species, "^Microcystis spp$", "Microcystis sp"))
+
+```
+
+
 ## Rename rows that should have had the same name
 ```{r clean}
 medcon2 <- medcon
-medcon2$Species <- sub("^Anabaena$", "Anabaena sp", medcon2$Species) %>% 
-  sub("^Microcystis$", "Microcystis sp", medcon2$Species)
+medcon2$Species <- sub("^Anabaena$", "Anabaena sp", medcon2$Species)
 ```
 
 ## Remove rows that are NA in column Cyanotoxin
