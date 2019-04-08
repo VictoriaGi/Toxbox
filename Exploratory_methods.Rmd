@@ -19,10 +19,11 @@ library(stringr)
 
 
 ## Explore correlations between toxin producing cyanobacteria
+
 ```{r heatmap.2}
 # Check the output in the folder!!!
 # You will find the image there
-
+install.packages("gplot")
 library(gplots)
 library(viridis)
 
@@ -60,6 +61,7 @@ species_explore2 <- medcon %>%
   filter(str_detect(Species, "Microcystis")) %>% 
   count(Species, Cyanotoxin) %>% 
   spread(Cyanotoxin, n)
+species_explore2
 
 
 ```
@@ -68,8 +70,9 @@ species_explore2 <- medcon %>%
 ```{r heatmaply, cache=TRUE}
 
 # Easier to plot but somewhat harder to perfect
-
+install.packages("plotly")
 library(plotly)
+install.packages("heatmaply")
 library(heatmaply)
 
 heatmaply(t(as.matrix(species_explore[,-1])))
@@ -79,6 +82,7 @@ heatmaply(t(as.matrix(species_explore[,-1])))
 ### Principal Component Analysis
 
 ```{r pca_base_R, fig.width=10, dpi=300, cache=T}
+install.packages("ggord")
 library(ggord)
 
 data <- as.data.frame(t(species_explore)[-1,])

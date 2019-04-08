@@ -212,7 +212,7 @@ med_subset <- head(main_toxin_producers_globally,8) # create subsets
 med_subset$subset <- "Mediterranean"
 
 cont_subset <- head(main_toxin_producers_MED,9)
-cont_subset$subset <- "Other Continents"
+cont_subset$subset <- "Rest of World"
 
 med_vs_cont <- rbind(med_subset, cont_subset)
 
@@ -475,33 +475,40 @@ cyanotoxins_continents <- medcon %>%
   select(Cyanotoxin, Country) %>%
   group_by(Cyanotoxin) %>% 
   summarize(Number_of_records = n())
-cyanotoxins_continent <- cyanotoxins_continents[-1, ]
+#cyanotoxins_continent <- cyanotoxins_continents[-1, ]
 
-number_cyanotoxins_cont <- ggplot(cyanotoxins_continent, 
-                            aes(x=reorder(Cyanotoxin, - Number_of_records), 
-                                Number_of_records, fill = Cyanotoxin)) + 
-  geom_bar(stat="identity", position = "dodge") + 
-  theme(plot.subtitle = element_text(vjust = 1), 
+#Ordered bars Re-level
+cyanotoxins_continents$Cyanotoxin <- factor(cyanotoxins_continents$Cyanotoxin, levels = cyanotoxins_continents$Cyanotoxin[order(cyanotoxins_continents$Number_of_records)])
+
+number_cyanotoxins_cont <- ggplot(cyanotoxins_continents, 
+                            aes(x=Cyanotoxin,  
+                                y=Number_of_records, fill = Cyanotoxin)) + 
+  geom_bar(stat= "identity", position = "dodge") + 
+      theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
     panel.background = element_rect(fill = NA)) +
   labs(x = "Cyanotoxin", y = "Number of records") + 
-  coord_flip() + theme(panel.grid.major = element_line(colour = NA), 
+  scale_y_continuous(limits = c(0,250))+
+  coord_flip() + 
+  
+  theme(panel.grid.major = element_line(colour = NA), 
     axis.title = element_text(size = 16), 
     axis.text = element_text(size = 14), 
-    legend.position = "none")
-
-number_cyanotoxins_cont + theme(
+    legend.position = "none")+
+  theme(
   panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_rect(fill = "transparent",colour = NA),
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA)
-        )
-number_cyanotoxins_cont + scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
+        )+
+  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
                                "Saxitoxin" = "#beaed4",
                                "Cylindrospermopsin" = "#fdc086",
                                "Microcystin" = "#ffff99",
-                               "Nodularin" = "#CC6666"))
+                               "Nodularin" = "#CC6666",
+                               "Nothing" = "#990000")) 
+  
 
 number_cyanotoxins_cont
 
