@@ -10,11 +10,11 @@ output:
 
 
 ```{r import_data}
-medcon <- read.csv("MED_Conts_Toxins_teliko_2.csv")
+medcon <- read.csv("MED_Conts_Toxins_teliko_3.csv")
 medcon
 
 # Erase from the data.frame rows that contain broad categories of toxins (eg Hepatotoxin)
-medcon_droplevels <- medcon[-c(192,271,273, 431,836), ]
+medcon <- medcon[-c(193,272,274, 432,837), ]
 
 # Remove the unused levels from the Cyanotoxin factor
 medcon <- droplevels(medcon)
@@ -35,16 +35,26 @@ library(ggplot2)
 
 ```{r}
 medcon_clean <- medcon %>% 
-  mutate(Species = str_replace_all(Species, "^Anabaena$", "Anabaena sp")) %>% 
-  mutate(Species = str_replace_all(Species, "^Anabaena spp$", "Anabaena sp")) %>% 
-  mutate(Species = str_replace_all(Species, "^Microcystis$", "Microcystis sp")) %>% 
-  mutate(Species = str_replace_all(Species, "^Microcystis spp$", "Microcystis sp"))
-medcon_clean
+  mutate(Species = str_replace_all(Species, "^Anabaena$", "Anabaena spp")) %>% 
+  mutate(Species = str_replace_all(Species, "^Anabaena sp$", "Anabaena spp")) %>% 
+  mutate(Species = str_replace_all(Species, "^Microcystis$", "Microcystis spp")) %>% 
+  mutate(Species = str_replace_all(Species, "^Microcystis sp$", "Microcystis spp")) %>% 
+  mutate(Species = str_replace_all(Species, "^Planktothrix sp$", "Planktothrix spp")) %>% 
+  mutate(Species = str_replace_all(Species, "^Aphanizomenon sp$", "Aphanizomenon spp")) %>% 
+  mutate(Cyanotoxin = str_replace_all(Cyanotoxin, "^Anatoxin$", "ANTX-a")) %>% 
+  mutate(Cyanotoxin = str_replace_all(Cyanotoxin, "^Cylindrospermopsin$", "CYN")) %>% 
+  mutate(Cyanotoxin = str_replace_all(Cyanotoxin, "^Microcystin$", "MC")) %>% 
+  mutate(Cyanotoxin = str_replace_all(Cyanotoxin, "^Saxitoxin$", "STX" )) %>% 
+  mutate(Cyanotoxin = str_replace_all(Cyanotoxin, "^Nodularin$", "NOD"))
+
+  medcon_clean
 levels(medcon_clean$Cyanotoxin)
 ```
 
 ```{r}
-summary(medcon)
+summary(medcon_clean)
+
+
 ```
 
 ## Find the unique Species in the Mediterranean basin
@@ -60,7 +70,7 @@ medcon_clean %>%
 ## Table with grouped Species and Cyanotoxins for each taxon in Mediterranean
 
 ```{r}
-species_cyanotox <- medcon %>%
+species_cyanotox <- medcon_clean %>%
   filter(Continent == "Mediterranean")%>%
   group_by(Species, Cyanotoxin) %>%
   summarize(Number_of_records = n()) %>%
@@ -68,16 +78,7 @@ species_cyanotox <- medcon %>%
 species_cyanotox
 ```
 
-```{r}
-species_cyanotox_cont <- medcon %>%
-  filter(Continent != "Mediterranean")%>%
-  group_by(Species, Cyanotoxin) %>%
-  summarize(Number_of_records = n()) %>%
-  select(Species, Cyanotoxin )
-species_cyanotox_cont
-```
-
-##Οι κύριοι παραγωγοί τοξινών στη Μεσόγειο (συνολικά 9) + γράφημα
+##Οι κύριοι παραγωγοί τοξινών στη Μεσόγειο (συνολικά 6) + γράφημα
 
 ```{r}
 main_toxin_producers_MED <- medcon_clean %>%
@@ -119,10 +120,10 @@ main_toxin_producers_MED_plot <-
     plot.background = element_rect(linetype = "solid")) +
   theme(axis.text.y = element_text(face = "italic")) +
   # produce consistent colors across plots
-  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99"))
+  scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99"))
  
 
 main_toxin_producers_MED_plot
@@ -160,7 +161,7 @@ main_toxin_producers_globally <- medcon_clean %>%
 main_toxin_producers_globally
 
 main_toxin_producers_cont_plot <- 
-  ggplot(head(main_toxin_producers_globally,8), 
+  ggplot(head(main_toxin_producers_globally,11), 
         aes(x = reorder(Species, -Number_of_records), 
         y = Number_of_records, fill = Cyanotoxin)) + 
   geom_bar(stat = "identity") + 
@@ -188,10 +189,11 @@ main_toxin_producers_cont_plot <-
     plot.background = element_rect(linetype = "solid")) +
   theme(axis.text.y = element_text(face = "italic")) +
   # produce consistent colors across plots
-  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99"))
+  scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99",
+                               "NOD" = "#CC6666"))
 
 main_toxin_producers_cont_plot  # check the plot
   
@@ -270,17 +272,7 @@ medcon_clean %>%
 ```
 
 
-```{r}
-med_country_cyanotox <- medcon_clean %>% 
-  filter(Continent == "Mediterranean")%>%
-  select(Species, Country,Cyanotoxin)%>%
-  group_by(Species, Cyanotoxin)%>%
-    arrange(Species)
-med_country_cyanotox
 
-ggplot(med_country_cyanotox, aes(Country, y= Species)) + geom_bar(stat = "identity")
-
-```
 
 
 ```{r}
@@ -312,10 +304,10 @@ cont_stabar + theme(axis.ticks = element_line(colour = "white"),
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA)) +
   labs(y = "Cyanotoxin") + 
-  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99",
+  scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99",
                                "Nodularin" = "#CC6666"))
 cont_stabar
 
@@ -324,7 +316,7 @@ ggsave("cont_stabar.pdf", bg = "transparent")
 ```
 
 ```{r}
-number_cyanoto_med <- medcon %>% 
+number_cyanoto_med <- medcon_clean %>% 
   filter(Continent == "Mediterranean") %>% 
   select(Species, Country,Cyanotoxin) %>% 
   group_by(Country, Cyanotoxin) %>% 
@@ -337,43 +329,44 @@ x + theme(plot.subtitle = element_text(vjust = 1),
     plot.caption = element_text(vjust = 1), 
     axis.ticks = element_line(colour = "white"), 
     panel.grid.minor = element_line(colour = NA), 
-    axis.title = element_text(size = 20, 
-        colour = "white"), axis.text = element_text(size = 20, 
+    axis.title = element_text(size = 24, 
+        colour = "white"), axis.text = element_text(size = 22, 
         colour = "white"), legend.text = element_text(size = 20, 
-        colour = "white"), legend.title = element_text(size = 20, 
+        colour = "white"), legend.title = element_text(size = 22, 
         colour = "white"), panel.background = element_rect(fill = NA), 
     plot.background = element_rect(colour = NA), 
     legend.key = element_rect(fill = NA), 
     legend.background = element_rect(fill = NA)) +labs(x = "Country", y = "Cyanotoxin")+
 
-
- theme(plot.subtitle = element_text(vjust = 1), 
+theme(plot.subtitle = element_text(vjust = 1), 
     plot.caption = element_text(vjust = 1), 
     axis.line = element_line(colour = NA), 
     axis.ticks = element_line(colour = "white"), 
     panel.grid.major = element_line(colour = NA), 
     panel.grid.minor = element_line(colour = NA), 
     axis.title = element_text(family = "serif", 
-        size = 20, colour = "white"), axis.text = element_text(size = 18, 
+        size = 24, colour = "white"), axis.text = element_text(size = 22, 
         colour = "white"), axis.text.x = element_text(family = "serif", 
         colour = "white", vjust = 0.6, angle = 45), 
     axis.text.y = element_text(colour = "white"), 
-    plot.title = element_text(size = 20), 
-    legend.text = element_text(size = 18, 
+    plot.title = element_text(size = 22), 
+    legend.text = element_text(size = 20, 
         family = "serif", colour = "white"), 
-    legend.title = element_text(size = 18, 
+    legend.title = element_text(size = 24, 
         family = "serif", colour = "white"), 
     panel.background = element_rect(fill = NA), 
     plot.background = element_rect(colour = NA), 
     legend.key = element_rect(fill = NA), 
     legend.background = element_rect(fill = NA), 
     legend.position = c(0.9, 0.6)) +labs(x = "Country", y = "Number of records")+
+  
 #manually insert colors
- scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99",
-                               "Nodularin" = "#CC6666"))+ 
+scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99",
+                               "NOD" = "#CC6666"))+
+  
   #Background transparent
   theme(
   panel.grid.major = element_blank(), 
@@ -386,6 +379,7 @@ x + theme(plot.subtitle = element_text(vjust = 1),
     legend.position = c(0.8, 0.7))
 
 ggsave("number_cyanoto_med.png", bg = "transparent", dpi=300)
+
 ```
 
 ## Different types of cyanotoxins found for the main toxin producers in Mediterranean
@@ -405,7 +399,7 @@ cyanotoxins_per_species
 ## Number of different types of cyanotoxins found in the world
 
 ```{r}
-cyanotoxins_continents <- medcon %>%
+cyanotoxins_continents <- medcon_clean %>%
   select(Cyanotoxin, Country) %>%
   group_by(Cyanotoxin) %>% 
   summarize(Number_of_records = n())
@@ -436,12 +430,11 @@ number_cyanotoxins_cont <- ggplot(cyanotoxins_continents,
         plot.background = element_rect(fill = "transparent",colour = NA),
         legend.background = element_rect(fill = NA)
         )+
-  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99",
-                               "Nodularin" = "#CC6666",
-                               "Nothing" = "#990000")) 
+ scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99",
+                               "NOD" = "#CC6666")) 
   
 
 number_cyanotoxins_cont
@@ -450,38 +443,13 @@ ggsave("number_cyanotoxins_cont.png", bg = "transparent", dpi = 300)
 ```
 
 
-```{r}
-medcon %>% 
-  select(Cyanotoxin, Country) %>% 
-  group_by(Cyanotoxin) %>% 
-  summarize(N_records = n()) %>% 
-  ggplot(aes(x= Cyanotoxin, y = N_records, fill = Cyanotoxin)) + geom_bar(width = 0.85, stat = "identity") + coord_polar(theta = "y") + xlab("") + ylab("") + ylim(c(0,100)) + geom_text(hjust = 1, size = 3, aes(x = Cyanotoxin, y = 0, label = Cyanotoxin)) + 
-  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99",
-                               "Nodularin" = "#CC6666",
-                               "Nothing" = "#990000")) +
-  theme_minimal() + theme( legend.position = "none",
-  panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill = "transparent",colour = NA),
-        plot.background = element_rect(fill = "transparent",colour = NA),
-        legend.background = element_rect(fill = NA)
-        )
-```
-
-```{r}
-
-```
-
 ## Produce a single image for the two previous plots
 
 ```{r combined, fig.asp= 0.5, fig.width=12}
 med_subset <- head(main_toxin_producers_MED,6) # create subsets
 med_subset$subset <- "Mediterranean"
 
-cont_subset <- head(main_toxin_producers_globally,8)
+cont_subset <- head(main_toxin_producers_globally,11)
 cont_subset$subset <- "Rest of World"
 
 med_vs_cont <- rbind(med_subset, cont_subset)
@@ -501,14 +469,14 @@ combined <-
     # legend.background = element_rect(fill = NA, 
     #     size = 0.1)
     ) +
-  labs(x = "Species", size = 14) + 
+  labs(x = "Species", size = 16) + 
   # theme(legend.position = "none") +
   theme(legend.position = "bottom", legend.direction = "horizontal") +
   coord_flip()  + 
   theme(axis.text.x = element_text(angle = 0)) + 
   theme(axis.title = element_text(size = 22),
-        strip.text = element_text(size = 20), 
-    axis.text = element_text(size = 18), 
+        strip.text = element_text(size = 24), 
+    axis.text = element_text(size = 20), 
     # plot.title = element_text(size = 14), 
     plot.background = element_rect(colour = NA)) +
   labs(y = "Number of records", colour = "white") + 
@@ -519,15 +487,16 @@ combined <-
   theme(axis.text.y = element_text(face = "italic")) +
   theme(axis.title = element_text(family = "serif"), 
     axis.text.y = element_text(family = "serif"), 
-    legend.text = element_text(size = 16, 
+    legend.text = element_text(size = 15, 
         family = "serif"),
     strip.text = element_text(family = "serif")) +
   theme(legend.title = element_text(colour = NA)) +
   # produce consistent colors across plots
-  scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99"))
+ scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99",
+                               "NOD" = "#CC6666"))
 
 #combined 
 
@@ -536,7 +505,7 @@ transparent_combined_plot <- combined +
   theme(axis.ticks = element_line(colour = "white"), 
     axis.text = element_text(colour = "white"), 
     axis.text.x = element_text( 
-        colour = "white"), axis.text.y = element_text(size = 20, 
+        colour = "white"), axis.text.y = element_text(size = 22, 
         colour = "white")) + theme(axis.line = element_line(colour = "white"), 
     axis.ticks = element_line(colour = "white"), 
     axis.title = element_text(colour = "white"), 

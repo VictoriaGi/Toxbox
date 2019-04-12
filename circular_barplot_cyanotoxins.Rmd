@@ -4,16 +4,19 @@ output: html_notebook
 ---
 
 
-
+## Circular barplot with transparent background, final
 ```{r}
-medcon_circ <-  medcon_clean %>% 
+medcon_circ<-  medcon_clean %>% 
+  filter(Cyanotoxin == c("ANTX-a", "MC", "STX", "NOD", "CYN")) %>% 
   select(Country, Cyanotoxin) %>% 
   group_by(Cyanotoxin) %>% 
   summarize(N_records = n()) %>% 
   mutate(Percent = N_records/sum(N_records)*100) %>%
   mutate(Percent = round(Percent,1)) %>% 
   arrange(desc(N_records))
+#medcon_circ <- medcon_circ[-1, ]
 medcon_circ
+
 
 # append number to category name
 #medcon_circ$Cyanotoxin <- paste0(medcon_circ$Cyanotoxin, " - ", medcon_circ$Percent, "%")
@@ -23,13 +26,13 @@ medcon_circ
 # set factor so it will plot in descending order
 medcon_circ$Cyanotoxin <- factor(medcon_circ$Cyanotoxin, levels = rev(medcon_circ$Cyanotoxin))
 
-medcon_circ_barplot <- ggplot(medcon_circ, aes(x= Cyanotoxin, y = Percent, fill = Cyanotoxin)) + geom_bar(width = 0.85, stat = "identity") + coord_polar(theta = "y") + xlab("") + ylab("") + ylim(c(0,30)) + geom_text(data = medcon_circ, hjust = 1, size = 6,colour = "white", family = "serif", aes(x = Cyanotoxin, y = 0, label = Cyanotoxin)) + 
-  scale_fill_manual(values = c("Anatoxin-a" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99",
-                               "Nodularin" = "#CC6666",
-                               "Nothing" = "#990000")) +
+medcon_circ_barplot <- ggplot(medcon_circ, aes(x= Cyanotoxin, y = Percent, fill = Cyanotoxin)) + geom_bar(width = 0.85, stat = "identity") + coord_polar(theta = "y") + xlab("") + ylab("") + ylim(c(0,100)) + geom_text(data = medcon_circ, hjust = 1, size = 6,colour = "white", family = "serif", aes(x = Cyanotoxin, y = 0, label = Cyanotoxin)) + 
+  scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99",
+                               "NOD" = "#CC6666",
+                               "Nothing" = "blue")) +
   theme_minimal() + theme( legend.position = "none") 
  
 medcon_circ_barplot_white <- medcon_circ_barplot + theme(axis.ticks = element_line(colour = "white"), 
@@ -66,6 +69,7 @@ a
 
 
 ```{r}
+library(treemap)
 medcon_treemap <- medcon_clean %>% 
   select(Country, Cyanotoxin) %>% 
   group_by(Cyanotoxin) %>% 
@@ -77,6 +81,7 @@ treemap(medcon_tree,
         index = "Cyanotoxin",
         vSize = "N",
         type = "index")
+help(treemap)
 ```
 
 ```{r}
@@ -94,12 +99,104 @@ medcon_treemap_subgroup <- medcon_treemap_subgroups[-1, ]
 treemap (medcon_treemap_subgroup, 
          index = c("Cyanotoxin", "Country"),
          vSize = "N",
-         type = "index") + scale_fill_manual(values = c("Anatoxin" = "#7fc97f", 
-                               "Saxitoxin" = "#beaed4",
-                               "Cylindrospermopsin" = "#fdc086",
-                               "Microcystin" = "#ffff99",
-                               "Nodularin" = "#CC6666",
+         type = "index") +palette(c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99",
+                               "NOD" = "#CC6666",
                                "Nothing" = "#990000"))
+```
+
+```{r combined, fig.asp= 0.5, fig.width=12}
+med_subset <- head(main_toxin_producers_MED,6) # create subsets
+med_subset$subset <- "Mediterranean"
+
+cont_subset <- head(main_toxin_producers_globally,11)
+cont_subset$subset <- "Rest of World"
+
+med_vs_cont <- rbind(med_subset, cont_subset)
+
+mylabels <- c(expression(paste(italic("Microcystis aeruginosa"))),
+              expression(paste(italic("Anabaena circinalis"))),
+              expression(paste(italic("Microcystis"), " ", "spp")),
+              expression(paste(italic("Planktothrix agardhii"))),
+              expression(paste(italic("Cylindrospermopsis raciborskii"))),
+              expression(paste(italic("Microcystis flos-aquae"))),
+              expression(paste(italic("Planktothrix"), " ","spp")),
+              expression(paste(italic("Anabaena"), " ","spp")),
+              expression(paste(italic("Aphanizomenon"), " ","spp")),
+              expression(paste(italic("Microcystis wesenbergii"))),
+              expression(paste(italic("Planktothrix rubescens"))),
+              expression(paste(italic("Nodularia spumigena"))))
+combined <- 
+  ggplot(med_vs_cont, 
+          aes(x = reorder(Species, -Number_of_records), 
+          y = Number_of_records, fill = Cyanotoxin)) + 
+  geom_bar(stat = "identity") + 
+  facet_wrap(~subset) + scale_x_discrete(labels = mylabels) + 
+    theme(plot.subtitle = element_text(vjust = 1), 
+    plot.caption = element_text(vjust = 1), 
+    axis.title = element_text(size = 14), 
+    axis.text.x = element_text(size = 12, 
+        vjust = 0.5, angle = 75), plot.title = element_text(size = 15), 
+    panel.background = element_rect(fill = NA), 
+    # legend.background = element_rect(fill = NA, 
+    #     size = 0.1)
+    ) + 
+ 
+   # theme(legend.position = "none") +
+  theme(legend.position = "bottom", legend.direction = "horizontal")+
+  coord_flip()  + 
+  theme(axis.text.x = element_text(angle = 0)) + 
+  theme(axis.title = element_text(size = 22),
+        strip.text = element_text(size = 24), 
+    axis.text = element_text(size = 20), 
+   
+     # plot.title = element_text(size = 14), 
+    plot.background = element_rect(colour = NA)) +
+  labs(y = "Number of records", colour = "white") + 
+  theme(panel.grid.major = element_line(colour = NA), 
+    panel.grid.minor = element_line(colour = NA), 
+    panel.background = element_rect(linetype = "solid"), 
+    plot.background = element_rect(linetype = "solid")) +
+  theme(axis.title = element_text(family = "serif"), 
+    axis.text.y = element_text(family = "serif"), 
+    legend.text = element_text(size = 16, 
+        family = "serif"),
+    strip.text = element_text(family = "serif")) +
+  theme(legend.title = element_text(colour = NA)) +
+
+    # produce consistent colors across plots
+  scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+                               "STX" = "#beaed4",
+                               "CYN" = "#fdc086",
+                               "MC" = "#ffff99",
+                               "NOD" = "#CC6666"))
+
+
+#combined 
+
+# Produce the plot with white text for the poster
+transparent_combined_plot <- combined +
+  theme(axis.ticks = element_line(colour = "white"), 
+    axis.text = element_text(colour = "white"), 
+    axis.text.x = element_text( 
+        colour = "white"), axis.text.y = element_text(size = 22, 
+        colour = "white")) + theme(axis.line = element_line(colour = "white"), 
+    axis.ticks = element_line(colour = "white"), 
+    axis.title = element_text(colour = "white"), 
+    plot.title = element_text(colour = "white")) + 
+    theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        legend.background = element_rect(fill = NA),
+        legend.text = element_text(colour = "white"),
+        strip.background = element_blank(),
+        strip.text = element_text(color = "white")
+        )
+transparent_combined_plot
+ggsave("transparent_combined_plot.png", bg = "transparent", dpi = 300)
 ```
 
 
