@@ -7,7 +7,7 @@ output: html_notebook
 ## Circular barplot with transparent background, final
 ```{r}
 medcon_circ<-  medcon_clean %>% 
-  filter(Cyanotoxin == c("ANTX-a", "MC", "STX", "NOD", "CYN")) %>% 
+  filter(Cyanotoxin == c("ATX-a", "MC", "STX", "NOD", "CYN")) %>% 
   select(Country, Cyanotoxin) %>% 
   group_by(Cyanotoxin) %>% 
   summarize(N_records = n()) %>% 
@@ -27,7 +27,7 @@ medcon_circ
 medcon_circ$Cyanotoxin <- factor(medcon_circ$Cyanotoxin, levels = rev(medcon_circ$Cyanotoxin))
 
 medcon_circ_barplot <- ggplot(medcon_circ, aes(x= Cyanotoxin, y = Percent, fill = Cyanotoxin)) + geom_bar(width = 0.85, stat = "identity") + coord_polar(theta = "y") + xlab("") + ylab("") + ylim(c(0,100)) + geom_text(data = medcon_circ, hjust = 1, size = 6,colour = "white", family = "serif", aes(x = Cyanotoxin, y = 0, label = Cyanotoxin)) + 
-  scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+  scale_fill_manual(values = c("ATX-a" = "#7fc97f", 
                                "STX" = "#beaed4",
                                "CYN" = "#fdc086",
                                "MC" = "#ffff99",
@@ -84,28 +84,28 @@ treemap(medcon_tree,
 help(treemap)
 ```
 
+##Treemap for the Mediterranean Countries and what Cyantoxins found in each Country
+
 ```{r}
 library(dplyr)
 library(treemap)
 
 medcon_treemap_subgroups <- medcon_clean %>% 
-  select(Cyanotoxin, Country) %>% 
-  group_by(Cyanotoxin, Country) %>% 
+  filter(Continent == "Mediterranean") %>% 
+  select(Country,Cyanotoxin ) %>% 
+  group_by(Country,Cyanotoxin ) %>% 
   summarize(N = n())
 medcon_treemap_subgroups
 
 medcon_treemap_subgroup <- medcon_treemap_subgroups[-1, ]
 
 treemap (medcon_treemap_subgroup, 
-         index = c("Cyanotoxin", "Country"),
+         index = c("Country", "Cyanotoxin"),
          vSize = "N",
-         type = "index") +palette(c("ANTX-a" = "#7fc97f", 
-                               "STX" = "#beaed4",
-                               "CYN" = "#fdc086",
-                               "MC" = "#ffff99",
-                               "NOD" = "#CC6666",
-                               "Nothing" = "#990000"))
+         type = "index") 
 ```
+
+## Convert to italic some of the characters
 
 ```{r combined, fig.asp= 0.5, fig.width=12}
 med_subset <- head(main_toxin_producers_MED,6) # create subsets
@@ -167,7 +167,7 @@ combined <-
   theme(legend.title = element_text(colour = NA)) +
 
     # produce consistent colors across plots
-  scale_fill_manual(values = c("ANTX-a" = "#7fc97f", 
+  scale_fill_manual(values = c("ATX-a" = "#7fc97f", 
                                "STX" = "#beaed4",
                                "CYN" = "#fdc086",
                                "MC" = "#ffff99",
