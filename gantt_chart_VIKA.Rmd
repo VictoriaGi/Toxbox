@@ -1,0 +1,52 @@
+---
+title: "Gantt_chart_VIKA"
+output: html_notebook
+---
+
+
+
+```{r}
+install.packages("Rcpp")
+require(ggplot2)
+require(reshape2)
+library(tidyverse)
+library(Rcpp)
+
+install.packages("ggplot2")
+install.packages("reshape2")
+library(reshape2)
+library(ggplot2)
+rm (list = ls())
+```
+
+```{r}
+task1 <- c("??a??eµa", "2017-03-03", "2017-04-04")
+task2 <- c("??a????????sµa", "2017-05-01", "2017-08-07")
+
+df <- as.data.frame(rbind(task1, task2))
+names(df) <-c("task", "start", "end")
+df$task <- factor(df$task, levels = df$task)
+df$start <-as.Date(df$start)
+df$end <- as.Date(df$end)
+df_melted <- melt(df, measure.vars = c("start", "end"))
+
+#Starting date to begin plot
+start_date <- as.Date("2017-01-01")
+
+ggplot(df_melted, aes(value, task)) + 
+  geom_line(size = 10) +
+  labs(x = '', y = '') +
+  theme_bw(base_size = 20) +
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.grid.major.x = element_line(colour="black", linetype = "dashed"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.x = element_text(angle = 0)) +
+  scale_x_date(date_labels = "%Y %b", limits = c(start_date, NA), date_breaks = '1 month')
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
