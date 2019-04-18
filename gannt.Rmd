@@ -22,12 +22,12 @@ kelly <- c("#C2B280","#848482","#008856",
 kelly2 <- c("#1D4F9F","#848482","#008856",
            "#882D17", "#654522","#E25822","#2B3D26")
 
-task1 <- c("Αναζήτηση Βιβ/φίας", "2019-03-01", "2020-03-01", "a")
+task1 <- c("Αναζήτηση Βιβ/φίας", "2019-03-01", "2020-02-14", "a")
 task2 <- c('Επικαιροποίηση δεδομένων', '2019-04-15', '2019-05-15', "b")
 task3 <- c('Εμπλουτισμός δεδομένων', '2019-04-01', '2019-10-01', "c")
-task4 <- c('Στατιστική ανάλυση', '2019-09-01', '2019-12-01', "d")
+task4 <- c('Ανάλυση', '2019-09-01', '2019-12-01', "d")
 task5 <- c('Συνέδριο', '2019-10-01', '2019-11-01', "e")
-task6 <- c('Συγγραφή εργασίας', "2019-11-01", "2020-03-10", "f")
+task6 <- c('Συγγραφή εργασίας', "2019-09-15", "2020-02-14", "f")
 # task7 <- c("Συγγραφή εργασίας", "2019-02-01", "2020-02-01", "g")
 
 df <- as.data.frame(rbind(task6, task5, task4, task3, task2, task1))
@@ -39,6 +39,7 @@ df_melted <- melt(df, measure.vars = c('start', 'end'))
 
 # starting date to begin plot
 start_date <- as.Date('2019-03-01')
+end_date <- as.Date('2020-03-01')
  
 p <- ggplot(df_melted, aes(value, task, colour=color)) + 
   geom_line(size = 3) +
@@ -51,7 +52,7 @@ p <- ggplot(df_melted, aes(value, task, colour=color)) +
         # panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         axis.text.x = element_text(angle = 0)) +
-  scale_x_date(date_labels = "%b %Y", limits = c(start_date, NA), date_breaks = '1 month',)
+  scale_x_date(date_labels = "%b %Y", limits = c(start_date, end_date), date_breaks = '1 month',)
 
 
 
